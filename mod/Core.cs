@@ -12,7 +12,7 @@ namespace MoreMap
     {
         public const string PluginGUID = "trpg.brc.moremap";
         public const string PluginName = "MoreMap";
-        public const string PluginVersion = "1.0.0";
+        public const string PluginVersion = "1.0.1";
 
         public static Core Instance { get; private set; }
         public static new ManualLogSource Logger = BepInEx.Logging.Logger.CreateLogSource("MoreMap");
