@@ -56,14 +56,6 @@ namespace MoreMap
             CreatePinsFromProgressables();
             CreateCharacterPins();
             CreateVendingMachinePins();
-            DisableAllPins(graffitiCollectiblePins);
-            if (Core.showGraffitiCollectible.Value) EnableAllPins(graffitiCollectiblePins);
-            DisableAllPins(musicPins);
-            if (Core.showMusic.Value) EnableAllPins(musicPins);
-            DisableAllPins(outfitPins);
-            if (Core.showOutfit.Value) EnableAllPins(outfitPins);
-            DisableAllPins(movestylePins);
-            if (Core.showMovestyle.Value) EnableAllPins(movestylePins);
             DisableAllPins(poloPins);
             if (Core.showPolo.Value) EnablePhotoPins();
             Core.Logger.LogInfo($"Finished pin setup.");
@@ -212,21 +204,27 @@ namespace MoreMap
         {
             foreach (VendingMachine vm in Object.FindObjectsOfType<VendingMachine>(true))
             {
-                if (vm.unlockableDrop != null)
+                if (vm.rewards.Contains(VendingMachine.Reward.UNLOCKABLE_DROP))
                 {
-                    MapPin pin = MapcontrollerT.Method("CreatePin", new object[] { MapPin.PinType.GraffitiPin }).GetValue<MapPin>();
-                    pin.AssignGameplayEvent(vm.gameObject);
-                    pin.InitMapPin(MapPin.PinType.Pin);
-                    pin.OnPinEnable();
+                    for (int i = 0; i < vm.rewards.Length; i++)
+                    {
+                        if (vm.rewards[i] == VendingMachine.Reward.UNLOCKABLE_DROP && vm.RewardIsValid(i))
+                        {
+                            MapPin pin = MapcontrollerT.Method("CreatePin", new object[] { MapPin.PinType.GraffitiPin }).GetValue<MapPin>();
+                            pin.AssignGameplayEvent(vm.gameObject);
+                            pin.InitMapPin(MapPin.PinType.Pin);
+                            pin.OnPinEnable();
 
-                    AUnlockable unlockable = vm.unlockableDrop.GetComponent<DynamicPickup>().unlock;
-                    if (unlockable is MusicTrack) musicPins.Add(pin);
-                    else if (unlockable is GraffitiAppEntry) graffitiCollectiblePins.Add(pin);
-                    else if (unlockable is OutfitUnlockable) outfitPins.Add(pin);
-                    else if (unlockable is MoveStyleSkin) movestylePins.Add(pin);
+                            AUnlockable unlockable = vm.unlockableDrop.GetComponent<DynamicPickup>().unlock;
+                            if (unlockable is MusicTrack) musicPins.Add(pin);
+                            else if (unlockable is GraffitiAppEntry) graffitiCollectiblePins.Add(pin);
+                            else if (unlockable is OutfitUnlockable) outfitPins.Add(pin);
+                            else if (unlockable is MoveStyleSkin) movestylePins.Add(pin);
 
-                    SetPinColor(pin, GetPinColor(pin));
-                    vendingMachineLinks.Add(vm, pin);
+                            SetPinColor(pin, GetPinColor(pin));
+                            vendingMachineLinks.Add(vm, pin);
+                        }
+                    }
                 }
             }
         }
@@ -242,6 +240,8 @@ namespace MoreMap
         {
             foreach (MapPin pin in list)
             {
+                if (vendingMachineLinks.ContainsValue(pin)) continue;
+
                 Traverse traverse = Traverse.Create(pin);
 
                 if (traverse.Field<GameObject>("m_ObjectiveObject").Value.activeInHierarchy)
@@ -307,6 +307,7 @@ namespace MoreMap
             foreach (MapPin pin in list)
             {
                 Traverse traverse = Traverse.Create(pin);
+                /*
                 if (vendingMachineLinks.ContainsValue(pin))
                 {
                     VendingMachine vm = vendingMachineLinks.FirstOrDefault(x => x.Value == pin).Key;
@@ -320,7 +321,7 @@ namespace MoreMap
                         else traverse.Method("DisableMapPinGameObject").GetValue();
                     }
                 }
-                else traverse.Method("EnableMapPinGameObject").GetValue();
+                else*/ traverse.Method("EnableMapPinGameObject").GetValue();
             }
         }
 

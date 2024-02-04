@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using Reptile;
+using UnityEngine;
 
 namespace MoreMap.Patches
 {
@@ -15,7 +16,14 @@ namespace MoreMap.Patches
                 {
                     if (PinManager.Instance != null && PinManager.Instance.vendingMachineLinks.ContainsKey(__instance)) 
                     {
-                        Traverse.Create(PinManager.Instance.vendingMachineLinks[__instance]).Method("DisableMapPinGameObject").GetValue();
+                        MapPin linkedPin = PinManager.Instance.vendingMachineLinks[__instance];
+                        if (PinManager.Instance.musicPins.Contains(linkedPin)) PinManager.Instance.musicPins.Remove(linkedPin);
+                        if (PinManager.Instance.graffitiCollectiblePins.Contains(linkedPin)) PinManager.Instance.graffitiCollectiblePins.Remove(linkedPin);
+                        if (PinManager.Instance.outfitPins.Contains(linkedPin)) PinManager.Instance.outfitPins.Remove(linkedPin);
+                        if (PinManager.Instance.movestylePins.Contains(linkedPin)) PinManager.Instance.movestylePins.Remove(linkedPin);
+                        PinManager.Instance.vendingMachineLinks.Remove(__instance);
+                        PinManager.Instance.RemovePin(linkedPin);
+                        if (linkedPin.gameObject != null) GameObject.Destroy(linkedPin.gameObject);
                     }
                 }
             }
