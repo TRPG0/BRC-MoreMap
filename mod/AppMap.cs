@@ -5,8 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
-using System;
-using System.Collections;
+using ModLocalizer;
 
 namespace MoreMap
 {
@@ -108,10 +107,10 @@ namespace MoreMap
             GameObject.DestroyImmediate(Instance.Content.Find("MessagePanel").gameObject);
 
             Instance.Content.Find("Overlay").GetComponentInChildren<TMProFontLocalizer>().UpdateTextMeshLanguageFont(SystemLanguage.English);
-            Component.Destroy(Instance.Content.Find("Overlay").GetComponentInChildren<TMProFontLocalizer>());
+            Traverse.Create(Instance.Content.Find("Overlay").GetComponentInChildren<TMProFontLocalizer>()).Field<GameFontType>("gameFontType").Value = Core.PhoneFont;
             Component.Destroy(Instance.Content.Find("Overlay").GetComponentInChildren<TMProLocalizationAddOn>());
             Instance.title = Instance.Content.Find("Overlay").GetComponentInChildren<TextMeshProUGUI>();
-            Instance.title.text = "Map";
+            Instance.title.text = Core.Instance.Localizer.GetRawTextValue(Subgroups.Text, "APP_MAP_HEADER");
             TMP_FontAsset font = Instance.title.font;
 
             Image icon = Instance.Content.Find("Overlay").Find("Icons").Find("AppIcon").GetComponentInChildren<Image>();
@@ -132,12 +131,12 @@ namespace MoreMap
 
             GameObject arrowRight = GameObject.Instantiate(Instance.Content.Find("Overlay").Find("Icons").Find("Arrow").gameObject, Instance.Content);
             arrowRight.transform.Rotate(0, 0, 180);
-            arrowRight.transform.localPosition = new Vector3(450, -600, 0);
+            arrowRight.transform.localPosition = new Vector3(450, -650, 0);
             arrowRight.name = "Arrow Right";
 
             GameObject pinBackground = GameObject.Instantiate(selectBackground, Instance.Content);
             pinBackground.transform.Rotate(0, 0, 180);
-            pinBackground.transform.localPosition = new Vector3(-700, -600, 0);
+            pinBackground.transform.localPosition = new Vector3(-700, -450, 0);
             pinBackground.name = "Pin Background";
 
             GameObject selectText = GameObject.Instantiate(selectBackground, Instance.Content);
@@ -145,6 +144,9 @@ namespace MoreMap
             selectText.transform.localPosition = new Vector3(-180, 250, 0);
             selectText.name = "Selection Text";
             Instance.selectText = selectText.AddComponent<TextMeshProUGUI>();
+            Traverse tmpfl = Traverse.Create(Instance.selectText.gameObject.AddComponent<TMProFontLocalizer>());
+            tmpfl.Field<GameFontType>("gameFontType").Value = Core.PhoneFont;
+            tmpfl.Field<TextMeshProUGUI>("textMesh").Value = Instance.selectText;
             Instance.selectText.alignment = TextAlignmentOptions.Right;
             Instance.selectText.fontSize = 65;
             Instance.selectText.font = font;
@@ -158,24 +160,24 @@ namespace MoreMap
 
             Instance.next1Text = GameObject.Instantiate(Instance.prevText.gameObject, Instance.Content).GetComponent<TextMeshProUGUI>();
             Instance.next1Text.name = "Next 1 Text";
-            Instance.next1Text.transform.localPosition = new Vector3(-155, -50, 0);
+            Instance.next1Text.transform.localPosition = new Vector3(-155, -75, 0);
 
             Instance.next2Text = GameObject.Instantiate(Instance.next1Text.gameObject, Instance.Content).GetComponent<TextMeshProUGUI>();
             Instance.next2Text.name = "Next 2 Text";
-            Instance.next2Text.transform.localPosition = new Vector3(-155, -175, 0);
+            Instance.next2Text.transform.localPosition = new Vector3(-155, -225, 0);
 
             Instance.toggleText = GameObject.Instantiate(Instance.next2Text.gameObject, Instance.Content).GetComponent<TextMeshProUGUI>();
             Instance.toggleText.name = "Toggle Text";
             Instance.toggleText.color = AppOrange;
             Instance.toggleText.fontSize = 75;
             Instance.toggleText.text = "Disable";
-            Instance.toggleText.transform.localPosition = new Vector3(-175, -600, 0);
+            Instance.toggleText.transform.localPosition = new Vector3(-175, -650, 0);
 
             Instance.pinCount = GameObject.Instantiate(Instance.toggleText.gameObject, Instance.Content).GetComponent<TextMeshProUGUI>();
             Instance.pinCount.name = "Pin Count";
             Instance.pinCount.color = Color.white;
             Instance.pinCount.fontSize = 60;
-            Instance.pinCount.transform.localPosition = new Vector3(-175, -700, 0);
+            Instance.pinCount.transform.localPosition = new Vector3(-175, -750, 0);
 
             GameObject isActive = new GameObject()
             {
@@ -196,11 +198,11 @@ namespace MoreMap
 
             Instance.toggleNext1Icon = GameObject.Instantiate(Instance.togglePrevIcon.gameObject, Instance.Content).GetComponent<Image>();
             Instance.toggleNext1Icon.name = "Next 1 Icon";
-            Instance.toggleNext1Icon.transform.localPosition = new Vector3(460, -50, 0);
+            Instance.toggleNext1Icon.transform.localPosition = new Vector3(460, -75, 0);
 
             Instance.toggleNext2Icon = GameObject.Instantiate(Instance.togglePrevIcon.gameObject, Instance.Content).GetComponent<Image>();
             Instance.toggleNext2Icon.name = "Next 2 Icon";
-            Instance.toggleNext2Icon.transform.localPosition = new Vector3(460, -175, 0);
+            Instance.toggleNext2Icon.transform.localPosition = new Vector3(460, -225, 0);
 
             GameObject pin = new GameObject()
             {
@@ -212,7 +214,7 @@ namespace MoreMap
             Instance.pin.sprite = PinSprite;
             Instance.pin.GetComponent<RectTransform>().sizeDelta = new Vector2(128, 256);
             Instance.pin.transform.localScale = new Vector3(2, 2, 1);
-            Instance.pin.transform.localPosition = new Vector3(-325, -350, 0);
+            Instance.pin.transform.localPosition = new Vector3(-325, -200, 0);
 
             Instance.specialIcon = GameObject.Instantiate(Instance.pin.gameObject, Instance.Content).GetComponent<Image>();
             Instance.specialIcon.name = "Special Icon";
@@ -230,7 +232,7 @@ namespace MoreMap
             Traverse hsaT = Traverse.Create(hsa);
             hsaT.Field<HomeScreenApp.HomeScreenAppType>("appType").Value = HomeScreenApp.HomeScreenAppType.EMAIL;
             hsaT.Field<string>("m_AppName").Value = "AppMap";
-            hsaT.Field<string>("m_DisplayName").Value = "MAP";
+            hsaT.Field<string>("m_DisplayName").Value = "APP_MAP_HEADER";
             hsaT.Field<Sprite>("m_AppIcon").Value = AppIcon;
 
             Traverse.Create(phone).Field<Dictionary<string, App>>("<AppInstances>k__BackingField").Value.Add("AppMap", Instance);
@@ -248,16 +250,16 @@ namespace MoreMap
         {
             return option switch
             {
-                AppMapOptions.GraffitiSpot => "Graffiti Spots",
-                AppMapOptions.Taxi => "Taxi Spots",
-                AppMapOptions.Toilet => "Toilets",
-                AppMapOptions.Cypher => "Cypher Spots",
-                AppMapOptions.GraffitiCollectible => "Graffiti Designs",
-                AppMapOptions.Music => "Music CDs",
-                AppMapOptions.Outfit => "Outfits",
-                AppMapOptions.Movestyle => "Movestyles",
-                AppMapOptions.Character => "Characters",
-                AppMapOptions.Polo => "Polo Photos",
+                AppMapOptions.GraffitiSpot => Core.Instance.Localizer.GetRawTextValue(Subgroups.Text, "APP_MAP_TYPE_GRAFFITI_SPOT"),
+                AppMapOptions.Taxi => Core.Instance.Localizer.GetRawTextValue(Subgroups.Text, "APP_MAP_TYPE_TAXI"),
+                AppMapOptions.Toilet => Core.Instance.Localizer.GetRawTextValue(Subgroups.Text, "APP_MAP_TYPE_TOILET"),
+                AppMapOptions.Cypher => Core.Instance.Localizer.GetRawTextValue(Subgroups.Text, "APP_MAP_TYPE_CYPHER"),
+                AppMapOptions.GraffitiCollectible => Core.Instance.Localizer.GetRawTextValue(Subgroups.Text, "APP_MAP_TYPE_GRAFFITI_COLLECTIBLE"),
+                AppMapOptions.Music => Core.Instance.Localizer.GetRawTextValue(Subgroups.Text, "APP_MAP_TYPE_MUSIC"),
+                AppMapOptions.Outfit => Core.Instance.Localizer.GetRawTextValue(Subgroups.Text, "APP_MAP_TYPE_OUTFIT"),
+                AppMapOptions.Movestyle => Core.Instance.Localizer.GetRawTextValue(Subgroups.Text, "APP_MAP_TYPE_MOVESTYLE"),
+                AppMapOptions.Character => Core.Instance.Localizer.GetRawTextValue(Subgroups.Text, "APP_MAP_TYPE_CHARACTER"),
+                AppMapOptions.Polo => Core.Instance.Localizer.GetRawTextValue(Subgroups.Text, "APP_MAP_TYPE_POLO"),
                 _ => "?"
             };
         }
@@ -318,7 +320,13 @@ namespace MoreMap
         public override void Awake()
         {
             base.Awake();
+            Core.Instance.Localizer.OnLanguageChanged += UpdateLanguage;
             LoadMinimapSprites();
+        }
+
+        public void OnDestroy()
+        {
+            Core.Instance.Localizer.OnLanguageChanged -= UpdateLanguage;
         }
 
         public override void OnAppUpdate()
@@ -385,7 +393,8 @@ namespace MoreMap
             prevText.text = GetOptionName(PrevOption);
             next1Text.text = GetOptionName(Next1Option);
             next2Text.text = GetOptionName(Next2Option);
-            toggleText.text = OptionValue(CurrentOption) ? "Disable" : "Enable";
+            toggleText.text = OptionValue(CurrentOption) ? Core.Instance.Localizer.GetRawTextValue(Subgroups.Text, "APP_MAP_DISABLE") 
+                : Core.Instance.Localizer.GetRawTextValue(Subgroups.Text, "APP_MAP_ENABLE");
         }
 
         public void UpdateCount()
@@ -393,7 +402,8 @@ namespace MoreMap
             if (OptionValue(CurrentOption))
             {
                 int activePins = PinManager.Instance.CountActivePins(GetPinsForOption(CurrentOption));
-                pinCount.text = activePins == 1 ? $"{activePins} pin" : $"{activePins} pins";
+                pinCount.text = activePins == 1 ? string.Format(Core.Instance.Localizer.GetRawTextValue(Subgroups.Text, "APP_MAP_COUNT_SINGLE"), activePins) 
+                    : string.Format(Core.Instance.Localizer.GetRawTextValue(Subgroups.Text, "APP_MAP_COUNT"), activePins);
                 pinCount.gameObject.SetActive(true);
             }
             else pinCount.gameObject.SetActive(false);
@@ -444,6 +454,12 @@ namespace MoreMap
                 AppMapOptions.Polo => PinManager.Instance.poloPins,
                 _ => null
             };
+        }
+
+        public void UpdateLanguage(SystemLanguage language)
+        {
+            title.text = Core.Instance.Localizer.GetRawTextValue(Subgroups.Text, "APP_MAP_HEADER");
+            UpdateText();
         }
 
         public void PlaySfx(SfxCollectionID collectionId, AudioClipID audioClipId)

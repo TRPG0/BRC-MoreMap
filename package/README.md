@@ -13,3 +13,8 @@ By default, requires the map collectible to be found before working, but can be 
 ![20240124212644_1](https://github.com/TRPG0/BRC-MoreMap/assets/80716066/08256f15-e29b-408a-84c5-05d645c2711a)
 
 ![20240124212633_1](https://github.com/TRPG0/BRC-MoreMap/assets/80716066/98709cab-6a96-4d95-9014-e841b2251e9c)
+
+## Translation credits
+
+- English - TRPG
+- French - Troyoo

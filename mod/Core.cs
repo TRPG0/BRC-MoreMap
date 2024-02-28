@@ -4,19 +4,25 @@ using BepInEx.Logging;
 using HarmonyLib;
 using Reptile;
 using UnityEngine;
+using ModLocalizer;
+using System.IO;
+using System.Reflection;
 
 namespace MoreMap
 {
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
+    [BepInDependency("trpg.brc.modlocalizer")]
     public class Core : BaseUnityPlugin
     {
         public const string PluginGUID = "trpg.brc.moremap";
         public const string PluginName = "MoreMap";
-        public const string PluginVersion = "1.0.2";
+        public const string PluginVersion = "1.1.0";
 
         public static Core Instance { get; private set; }
         public static new ManualLogSource Logger = BepInEx.Logging.Logger.CreateLogSource("MoreMap");
         public static AssetBundle Bundle { get; private set; } = AssetBundle.LoadFromMemory(Properties.Resources.moremap);
+        public PluginLocalizer Localizer { get; private set; }
+        public static GameFontType PhoneFont { get; private set; }
 
         public static ConfigEntry<bool> requireMap;
         public static ConfigEntry<bool> showGraffitiSpot;
@@ -40,7 +46,15 @@ namespace MoreMap
 
         private void Awake()
         {
+            if (Instance != null) Destroy(this);
             Instance = this;
+
+            string assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            Localizer = new PluginLocalizer(PluginName, Path.Combine(assemblyPath, "Languages"));
+            Localizer.OnInitializationFinished += () =>
+            {
+                PhoneFont = Localizer.LoadFontTypeAndRemoveUnusedFonts(GameFontTypes.PhoneMainText);
+            };
 
             Harmony harmony = new Harmony("MoreMap");
             harmony.PatchAll();
